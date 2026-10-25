@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi des fonds de commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#16231F; --muted:#5A6762; --line:#DDE1DC; --line2:#ECEFEB; --ground:#F4F5F2; --card:#FFFFFF;
+  --accent:#1E5B4B; --accent-soft:#E3F1EA; --ctl:#8A9690; --warn-bg:#FFF4DF; --warn-ink:#7A4600;
+  --side:#16231F; --side-ink:#C9D3CE; --side-on:#2B4038;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:Figtree,system-ui,sans-serif;font-size:14px;line-height:1.45}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select{font:inherit;color:var(--ink)}
+button:focus-visible,input:focus,select:focus,a:focus-visible{outline:3px solid #7FB5A3;outline-offset:1px}
+h1,h2,p{margin:0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+aside{flex:1 0 240px;max-width:100%;background:var(--side);color:#E8EDEA;padding:28px 16px;display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px;font-weight:600;font-size:16px}
+.brand b{width:30px;height:30px;border-radius:8px;background:#E8EDEA;color:var(--ink);display:flex;align-items:center;justify-content:center}
+nav{display:flex;flex-direction:column;gap:4px}
+nav a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:8px;color:var(--side-ink)}
+nav a:hover{text-decoration:none;background:#1F322B}
+nav a.on{background:var(--side-on);color:#fff;font-weight:600}
+.navlabel{padding:0 12px 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#A9B5AF}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+main{flex:999 1 560px;min-width:0;padding:32px 40px;display:flex;flex-direction:column;gap:24px}
+@media(max-width:640px){main{padding:24px 16px}}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.head h1{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.sub{margin-top:4px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.card h2{font-size:17px;font-weight:600}
+.small{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:6px}
+.kpi .v{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+.bar{height:12px;border-radius:6px;background:var(--line2);overflow:hidden}
+.bar i{display:block;height:12px;border-radius:6px}
+.between{display:flex;justify-content:space-between;gap:12px}
+.btn{min-height:44px;padding:0 16px;border:1px solid var(--ctl);border-radius:8px;background:#fff;font-weight:500;cursor:pointer;display:inline-flex;align-items:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn:hover{text-decoration:none}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.ok{background:var(--accent-soft);color:#1A5A43}
+.wait{background:var(--warn-bg);color:var(--warn-ink)}
+.late{background:#FBE8E8;color:#8C2323}
+.neutral{background:var(--line2);color:#44514B}
+.tablebox{overflow-x:auto}
+.t{display:grid;gap:12px;align-items:center;min-width:600px}
+.t.head-r{padding:8px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}
+.t.r{padding:12px 0;border-bottom:1px solid var(--line2)}
+.t.tot{padding:14px 0 0;font-weight:700}
+.r-right{text-align:right}
+.warnbox{background:var(--warn-bg);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;color:#5C3800}
+.warnbox b{color:var(--warn-ink)}
+.okbox{background:var(--accent-soft);border-radius:12px;padding:18px 20px;color:#14472F}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-weight:600}
+.in{min-height:44px;padding:0 12px;border:1px solid var(--ctl);border-radius:8px;background:#fff;width:100%}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{min-height:44px;padding:0 16px;border:0;border-bottom:3px solid transparent;background:none;color:var(--muted);cursor:pointer}
+.tabs button.on{color:var(--accent);font-weight:700;border-bottom-color:var(--accent)}
+.choice{text-align:left;display:flex;flex-direction:column;gap:6px;padding:16px 18px;border-radius:10px;border:2px solid var(--ctl);background:#fff;cursor:pointer}
+.choice.on{border-color:var(--accent);background:var(--accent-soft)}
+.switch{width:48px;height:28px;padding:0;border:0;border-radius:14px;cursor:pointer;display:flex;align-items:center;background:var(--ctl);flex:none}
+.switch i{display:block;width:22px;height:22px;border-radius:50%;background:#fff;margin-left:3px}
+.switch[aria-checked=true]{background:var(--accent)}
+.switch[aria-checked=true] i{margin-left:23px}
+.pill{padding:8px 14px;border-radius:999px;background:var(--line2)}
+.step{display:flex;align-items:center;gap:12px}
+.step b{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center}
+.synth{padding-top:12px;border-top:1px solid var(--line2)}
+.dropzone{border:2px dashed var(--ctl);border-radius:10px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#44514B}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;z-index:10}
+@media print{aside,.noprint{display:none!important}main{padding:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><b>F</b>Suivi des fonds</div>
+    <nav id="nav-main" aria-label="Navigation principale"></nav>
+    <nav id="nav-funds" aria-label="Mes fonds"></nav>
+  </aside>
+  <main id="view" tabindex="-1"></main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+/* =====================  DONNÉES (issues de ton Excel CA12 2026)  ===================== */
+var FUNDS = {
+  tabac:   { name:'Tabac',   color:'#164F85', dot:'#5B9BE0', loyer:10576, foncier:814 },
+  chinon:  { name:'Chinon',  color:'#D97A12', dot:'#F0A04B', loyer:5306,  foncier:0 },
+  chateau: { name:'Château', color:'#8A6BC9', dot:'#B79BF0', loyer:0,     foncier:0 }
+};
+var CHARGES = [ { f:'Lehoux', ttc:238.20 }, { f:'Barreau', ttc:739.62 }, { f:'Leroy Merlin', ttc:71.40 } ];
+var ACOMPTES = { juillet:1684, decembre:1225 };
+var RATE = 0.2;
+
+/* =====================  OUTILS  ===================== */
+function r2(n){ return Math.round(n*100)/100; }
+function fmt(n){ return r2(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function eur(n){ return fmt(n)+' €'; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* =====================  ÉTAT (sauvegardé dans le navigateur)  ===================== */
+var DEFAULTS = { regime:'ca12', period:'trimestre', exig:'encaissement', fundsOn:{tabac:true,chinon:true,chateau:false},
+                 saisie:{mode:'charge',amount:'71,40',basis:'ttc',rate:20}, tab:'loyers' };
+var S = load();
+function load(){
+  try{ var raw = localStorage.getItem('suivi-fonds-v1'); if(raw){ var o = JSON.parse(raw); return Object.assign({}, DEFAULTS, o, {fundsOn:Object.assign({},DEFAULTS.fundsOn,o.fundsOn||{}), saisie:Object.assign({},DEFAULTS.saisie,o.saisie||{})}); } }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULTS));
+}
+function save(){ try{ localStorage.setItem('suivi-fonds-v1', JSON.stringify(S)); }catch(e){} }
+
+/* =====================  CALCULS  ===================== */
+function chargesCalc(){
+  return CHARGES.map(function(c){ var ht=r2(c.ttc/(1+RATE)); return {f:c.f, ttc:c.ttc, ht:ht, tva:r2(c.ttc-ht)}; });
+}
+function totals(){
+  var ch = chargesCalc(), base=0, bases={};
+  Object.keys(FUNDS).forEach(function(k){
+    var f=FUNDS[k]; var b = S.fundsOn[k] ? f.loyer+f.foncier : 0; bases[k]=b; base+=b;
+  });
+  var collectee = r2(base*RATE);
+  var ded = r2(ch.reduce(function(a,c){return a+c.tva;},0));
+  var chHt = r2(ch.reduce(function(a,c){return a+c.ht;},0));
+  var chTtc = r2(ch.reduce(function(a,c){return a+c.ttc;},0));
+  var ac = ACOMPTES.juillet+ACOMPTES.decembre;
+  var nette = r2(collectee-ded);
+  return {base:base,bases:bases,collectee:collectee,ded:ded,chHt:chHt,chTtc:chTtc,ac:ac,nette:nette,apayer:r2(nette-ac),ch:ch};
+}
+
+/* =====================  COMPOSANTS  ===================== */
+function icon(p){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+var NAV = [
+  ['dashboard','Tableau de bord',icon('<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>')],
+  ['saisie','Saisie rapide',icon('<path d="M12 5v14M5 12h14"/>')],
+  ['tva','Assistant TVA',icon('<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/>')],
+  ['parametres','Paramètres',icon('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>')]
+];
+function renderNav(route){
+  document.getElementById('nav-main').innerHTML = NAV.map(function(n){
+    return '<a href="#/'+n[0]+'" class="'+(route[0]===n[0]?'on':'')+'"'+(route[0]===n[0]?' aria-current="page"':'')+'>'+n[2]+n[1]+'</a>';
+  }).join('');
+  document.getElementById('nav-funds').innerHTML = '<div class="navlabel">Mes fonds</div>' + Object.keys(FUNDS).map(function(k){
+    var on = route[0]==='fonds' && route[1]===k;
+    return '<a href="#/fonds/'+k+'" class="'+(on?'on':'')+'"'+(on?' aria-current="page"':'')+'><span class="dot" style="background:'+FUNDS[k].dot+'"></span>'+FUNDS[k].name+'</a>';
+  }).join('');
+}
+function kpi(label,value,note){ return '<div class="kpi"><div class="small">'+label+'</div><div class="v num">'+value+'</div><div class="small">'+note+'</div></div>'; }
+function chip(cls,t){ return '<span class="chip '+cls+'">'+t+'</span>'; }
+
+/* =====================  VUES  ===================== */
+function viewDashboard(){
+  var T = totals();
+  var fundBars = Object.keys(FUNDS).map(function(k){
+    var f=FUNDS[k], b=T.bases[k], pct = T.base? Math.round(b/T.base*1000)/10 : 0;
+    var note = !S.fundsOn[k] ? 'Non assujetti ou à configurer : ni loyers ni TVA comptés'
+             : (f.loyer? ('Loyers '+fmt(f.loyer)+' €'+(f.foncier?' + taxe foncière refacturée '+fmt(f.foncier)+' €':'')) : 'À renseigner : bail et loyers');
+    return '<div class="col" style="gap:6px"><div class="between"><span style="display:flex;align-items:center;gap:8px;font-weight:500"><span class="dot" style="background:'+f.color+'"></span>'+f.name+'</span><b class="num">'+(b?fmt(b)+' €':'—')+'</b></div>'+
+           '<div class="bar"><i style="width:'+pct+'%;background:'+f.color+'"></i></div><div class="small">'+note+'</div></div>';
+  }).join('');
+  var max = T.collectee||1;
+  var tvaRows = [['TVA collectée',T.collectee,'#1E5B4B'],['TVA déductible',T.ded,'#7FB5A3'],['Acomptes juillet + décembre',T.ac,'#9AA8A1'],['TVA à payer',T.apayer,'#D97A12']].map(function(r){
+    return '<div class="col" style="gap:6px"><div class="between"><span style="font-weight:500">'+r[0]+'</span><b class="num">'+eur(r[1])+'</b></div><div class="bar"><i style="width:'+Math.max(0,Math.min(100,r[1]/max*100))+'%;background:'+r[2]+'"></i></div></div>';
+  }).join('');
+  var rows = [];
+  Object.keys(FUNDS).forEach(function(k){ var f=FUNDS[k]; if(!S.fundsOn[k]) return;
+    if(f.loyer) rows.push(['Loyer',f.name,'Loyers',f.loyer]);
+    if(f.foncier) rows.push(['Refacturation',f.name,'Taxe foncière',f.foncier]); });
+  T.ch.forEach(function(c){ rows.push(['Charge','À affecter',c.f,c.ht]); });
+  var rowsHtml = rows.map(function(r){
+    return '<div class="t r" style="grid-template-columns:110px 100px 1fr 100px 100px"><span class="small" style="font-size:14px">'+r[0]+'</span><b style="font-weight:500">'+r[1]+'</b><span>'+r[2]+'</span><span class="r-right num">'+fmt(r[3])+'</span><span class="r-right num">'+fmt(r[3]*RATE)+'</span></div>';
+  }).join('');
+  return '<div class="head"><div><h1>Tableau de bord</h1><p class="sub">Déclaration CA12 2026 · 3 fonds de commerce</p></div></div>'+
+  '<section class="kpis">'+kpi('Loyers et refacturations HT',fmt(T.base)+' €','Fonds assujettis')+kpi('Charges HT',fmt(T.chHt)+' €',CHARGES.length+' factures saisies')+kpi('TVA nette avant acomptes',fmt(T.nette)+' €',fmt(T.collectee)+' − '+fmt(T.ded))+kpi('Reste à payer (CA12)',fmt(T.apayer)+' €','après '+fmt(T.ac)+' € d’acomptes')+'</section>'+
+  '<section class="row"><div class="card" style="flex:1 1 380px"><div><h2>Base HT par fonds</h2><p class="small">Loyers + refacturations soumis à TVA 20 %</p></div>'+fundBars+'</div>'+
+  '<div class="card" style="flex:1 1 380px"><div><h2>De la TVA collectée au solde à payer</h2><p class="small">Même logique que l’onglet « Saisie » de ton Excel</p></div>'+tvaRows+'</div></section>'+
+  '<section class="row"><div class="card" style="flex:2 1 520px"><div class="between" style="align-items:center"><h2>Dernières écritures</h2><a class="btn primary" href="#/saisie">+ Nouvelle écriture</a></div>'+
+  '<div class="tablebox"><div class="t head-r" style="grid-template-columns:110px 100px 1fr 100px 100px"><span>Type</span><span>Fonds</span><span>Libellé</span><span class="r-right">HT</span><span class="r-right">TVA</span></div>'+rowsHtml+'</div></div>'+
+  '<div class="card" style="flex:1 1 300px"><h2>À vérifier</h2>'+
+  '<div class="warnbox"><b>2 écarts avec ton Excel</b><span class="small" style="color:#5C3800">Lehoux et Leroy Merlin : la TVA recalculée depuis le TTC diffère de 2,32 € au total.</span></div>'+
+  '<div class="warnbox"><b>'+CHARGES.length+' charges sans fonds</b><span class="small" style="color:#5C3800">Affecte-les à Tabac, Chinon ou Château pour avoir le résultat par fonds.</span></div>'+
+  '<div class="warnbox"><b>Château non configuré</b><span class="small" style="color:#5C3800">Indique son bail et s’il est assujetti à la TVA.</span></div></div></section>';
+}
+
+function viewFonds(key){
+  var f = FUNDS[key]; if(!f) return '<h1>Fonds introuvable</h1>';
+  var on = S.fundsOn[key];
+  var head = '<div class="head"><div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="dot" style="width:14px;height:14px;background:'+f.color+'"></span><h1>'+f.name+'</h1>'+chip(on?'ok':'neutral', on?'Assujetti à la TVA':'Hors TVA')+'</div><p class="sub">Fonds de commerce en location · Déclaration CA12 2026</p></div><a class="btn primary" href="#/saisie">+ Nouvelle écriture</a></div>';
+  if(!f.loyer){
+    return head + '<div class="card"><h2>Rien de saisi pour l’instant</h2><p class="small">Renseigne le bail (locataire, dates, loyer HT) et indique dans les paramètres si ce fonds est assujetti à la TVA. Il apparaîtra alors dans le tableau de bord et l’assistant TVA.</p><div><a class="btn" href="#/parametres">Ouvrir les paramètres</a></div></div>';
+  }
+  var q = r2(f.loyer/4), tvaQ = r2(q*RATE), ttcQ = r2(q+tvaQ);
+  var periods = ['1er trimestre','2e trimestre','3e trimestre','4e trimestre'];
+  var paid = ['03/01/2026','02/04/2026','01/07/2026','—'];
+  var lines = periods.map(function(p,i){ return {p:p,ht:q,tva:tvaQ,ttc:ttcQ,paid:paid[i],ok:i<3}; });
+  if(f.foncier) lines.push({p:'Taxe foncière refacturée',ht:f.foncier,tva:r2(f.foncier*RATE),ttc:r2(f.foncier*(1+RATE)),paid:'—',ok:false});
+  var sum = lines.reduce(function(a,l){return {ht:a.ht+l.ht,tva:a.tva+l.tva,ttc:a.ttc+l.ttc};},{ht:0,tva:0,ttc:0});
+  var tabs = '<div class="tabs" role="tablist">'+['loyers','charges','documents'].map(function(t){ return '<button role="tab" aria-selected="'+(S.tab===t)+'" class="'+(S.tab===t?'on':'')+'" data-act="tab" data-v="'+t+'">'+t.charAt(0).toUpperCase()+t.slice(1)+'</button>'; }).join('')+'</div>';
+  var body;
+  if(S.tab==='loyers'){
+    body = '<div class="between" style="align-items:center;flex-wrap:wrap"><h2>Loyers 2026</h2>'+chip('neutral','Données d’exemple')+'</div>'+
+    '<div class="tablebox"><div class="t head-r" style="grid-template-columns:1fr 100px 90px 100px 100px 110px"><span>Période</span><span class="r-right">HT</span><span class="r-right">TVA</span><span class="r-right">TTC</span><span>Payé le</span><span>Statut</span></div>'+
+    lines.map(function(l){ return '<div class="t r" style="grid-template-columns:1fr 100px 90px 100px 100px 110px"><b style="font-weight:500">'+l.p+'</b><span class="r-right num">'+fmt(l.ht)+'</span><span class="r-right num">'+fmt(l.tva)+'</span><span class="r-right num">'+fmt(l.ttc)+'</span><span class="small num" style="font-size:14px">'+l.paid+'</span><span>'+chip(l.ok?'ok':'wait',l.ok?'Payé':'En attente')+'</span></div>'; }).join('')+
+    '<div class="t tot" style="grid-template-columns:1fr 100px 90px 100px 100px 110px"><span>Total</span><span class="r-right num">'+fmt(sum.ht)+'</span><span class="r-right num">'+fmt(sum.tva)+'</span><span class="r-right num">'+fmt(sum.ttc)+'</span><span></span><span></span></div></div>';
+  } else if(S.tab==='charges'){
+    body = '<h2>Charges</h2><p class="small">Aucune charge affectée à ce fonds pour l’instant. Les factures saisies sans fonds apparaissent dans « Saisie rapide ».</p>';
+  } else {
+    body = '<h2>Documents</h2><div class="dropzone"><span>Bail, avenants, factures, justificatifs</span><button class="btn" data-act="toast" data-v="Maquette : l’envoi de fichiers viendra avec Firebase Storage.">Ajouter un fichier</button></div>';
+  }
+  var bail = [['Locataire','[À renseigner]'],['Début du bail','[À renseigner]'],['Fin du bail','[À renseigner]'],['Loyer annuel HT',fmt(f.loyer)+' €'],['Périodicité','Trimestrielle'],['TVA','20 % sur option'],['Indexation','[À renseigner]']].map(function(b){
+    return '<div class="between" style="border-bottom:1px solid var(--line2);padding-bottom:10px"><span class="small" style="font-size:14px">'+b[0]+'</span><b style="font-weight:500;text-align:right" class="num">'+b[1]+'</b></div>'; }).join('');
+  return head+
+  '<section class="kpis">'+kpi('Loyers HT',fmt(f.loyer)+' €','Bail commercial')+kpi('Taxe foncière refacturée HT',fmt(f.foncier)+' €',f.foncier?'Soumise à TVA 20 %':'Aucune')+kpi('TVA collectée',fmt(r2((f.loyer+f.foncier)*RATE))+' €','Sur '+fmt(f.loyer+f.foncier)+' € HT')+kpi('Charges affectées','0,00 €','Aucune pour l’instant')+'</section>'+
+  '<section class="row"><div class="card" style="flex:2 1 520px">'+tabs+body+'</div>'+
+  '<div class="col" style="flex:1 1 300px"><div class="card"><h2>Bail</h2>'+bail+'<button class="btn" data-act="toast" data-v="Maquette : la modification du bail viendra avec la base de données.">Modifier le bail</button></div>'+
+  '<div class="card"><h2>Résultat du fonds</h2><div class="between"><span class="small" style="font-size:14px">Produits HT</span><b class="num">'+fmt(f.loyer+f.foncier)+' €</b></div><div class="between"><span class="small" style="font-size:14px">Charges affectées HT</span><b class="num">0,00 €</b></div><div class="between" style="border-top:1px solid var(--line);padding-top:12px;font-weight:700"><span>Résultat</span><span class="num">'+fmt(f.loyer+f.foncier)+' €</span></div></div></div></section>';
+}
+
+function calcSaisie(){
+  var s=S.saisie, a=parseFloat(String(s.amount).replace(/\s/g,'').replace(',','.'))||0, r=Number(s.rate)/100, ht,tva,ttc;
+  if(s.basis==='ttc'){ ttc=a; ht=a/(1+r); tva=ttc-ht; } else { ht=a; tva=a*r; ttc=ht+tva; }
+  return {ht:ht,tva:tva,ttc:ttc};
+}
+function saisieOut(){
+  var c=calcSaisie(), s=S.saisie;
+  return '<div class="between"><span class="small" style="font-size:14px">Montant HT</span><b class="num">'+eur(c.ht)+'</b></div>'+
+  '<div class="between"><span class="small" style="font-size:14px">TVA ('+String(s.rate).replace('.',',')+' %)</span><b class="num">'+eur(c.tva)+'</b></div>'+
+  '<div class="between" style="border-top:1px solid var(--line);padding-top:12px;font-weight:700"><span>Montant TTC</span><span class="num">'+eur(c.ttc)+'</span></div>';
+}
+function saisieImpact(){
+  var c=calcSaisie(), loy=S.saisie.mode==='loyer';
+  return '<b>'+(loy?'TVA collectée : +':'TVA déductible : +')+eur(c.tva)+'</b><div class="small" style="margin-top:4px;color:#14472F">'+(loy?'Ajoutée à la TVA collectée du fonds, retenue dans la déclaration selon la date de paiement.':'Ajoutée à la TVA déductible, reprise automatiquement dans l’assistant TVA.')+'</div>';
+}
+function viewSaisie(){
+  var s=S.saisie, loy=s.mode==='loyer';
+  function sel(id,label,opts){ return '<div class="field"><label for="'+id+'">'+label+'</label><select id="'+id+'" class="in">'+opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select></div>'; }
+  var specific = loy
+    ? sel('periode','Période',['4e trimestre 2026','3e trimestre 2026','Taxe foncière refacturée'])+sel('statut','Statut',['Payé','En attente','En retard'])
+    : '<div class="field"><label for="fournisseur">Fournisseur</label><input id="fournisseur" class="in" type="text" value="Leroy Merlin"></div>'+sel('categorie','Catégorie',['Travaux et entretien','Honoraires','Assurance','Taxe foncière','Copropriété']);
+  var rates = [20,10,5.5,0].map(function(r){ return '<button type="button" class="btn'+(Number(s.rate)===r?' on':'')+'" data-act="rate" data-v="'+r+'">'+String(r).replace('.',',')+' %</button>'; }).join('');
+  return '<div class="head"><div><h1>Saisie rapide</h1><p class="sub">Entre un loyer ou une charge : HT, TVA et TTC se calculent tout seuls.</p></div></div>'+
+  '<section class="row"><form class="card" style="flex:2 1 520px;gap:20px" onsubmit="return false">'+
+  '<div style="display:flex;gap:8px"><button type="button" class="btn'+(loy?' on':'')+'" data-act="mode" data-v="loyer">Loyer</button><button type="button" class="btn'+(!loy?' on':'')+'" data-act="mode" data-v="charge">Charge</button></div>'+
+  '<div class="grid2">'+sel('fonds','Fonds',['Tabac','Chinon','Château','À affecter plus tard'])+'<div class="field"><label for="date">Date</label><input id="date" class="in" type="text" value="'+new Date().toLocaleDateString('fr-FR')+'"></div>'+specific+'</div>'+
+  '<div class="grid2"><div class="field"><label for="montant">Montant saisi (€)</label><input id="montant" class="in num" type="text" inputmode="decimal" value="'+esc(s.amount)+'"></div>'+
+  '<div class="field"><span class="lbl">Ce montant est en</span><div style="display:flex;gap:8px"><button type="button" class="btn'+(s.basis==='ht'?' on':'')+'" data-act="basis" data-v="ht">HT</button><button type="button" class="btn'+(s.basis==='ttc'?' on':'')+'" data-act="basis" data-v="ttc">TTC</button></div></div></div>'+
+  '<div class="field"><span class="lbl">Taux de TVA</span><div style="display:flex;flex-wrap:wrap;gap:8px">'+rates+'</div></div>'+
+  (loy?'':'<div class="dropzone"><span>Justificatif (facture PDF ou photo)</span><button type="button" class="btn" data-act="toast" data-v="Maquette : l’envoi de fichiers viendra avec Firebase Storage.">Ajouter un fichier</button></div>')+
+  '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end"><a class="btn" href="#/dashboard">Annuler</a><button type="button" class="btn primary" data-act="toast" data-v="Maquette : rien n’est enregistré pour l’instant.">Enregistrer</button></div></form>'+
+  '<div class="col" style="flex:1 1 300px"><div class="card"><h2>Calcul en direct</h2><div id="sOut" class="col" style="gap:14px">'+saisieOut()+'</div></div><div class="okbox" id="sImpact">'+saisieImpact()+'</div></div></section>';
+}
+
+function viewTva(){
+  var T=totals(), ca12=S.regime==='ca12';
+  var regLabel = ca12 ? 'Réel simplifié (CA12)' : 'Réel normal (CA3)';
+  var perLabel = ca12 ? 'Annuelle' : (S.period==='mensuel'?'Mensuelle':'Trimestrielle');
+  var collRows = [];
+  Object.keys(FUNDS).forEach(function(k){ var f=FUNDS[k];
+    if(!S.fundsOn[k] || !f.loyer){ collRows.push([f.name, S.fundsOn[k]?'Non configuré':'Hors TVA','—','—','—']); return; }
+    collRows.push([f.name,'Loyers',fmt(f.loyer),'20 %',fmt(f.loyer*RATE)]);
+    if(f.foncier) collRows.push([f.name,'Taxe foncière refacturée',fmt(f.foncier),'20 %',fmt(f.foncier*RATE)]);
+  });
+  var fl = {Lehoux:1,'Leroy Merlin':1};
+  var G1='display:grid;gap:12px;align-items:center;min-width:560px;grid-template-columns:90px 1fr 110px 60px 100px';
+  var G2='grid-template-columns:1fr 110px 100px 90px 150px 100px';
+  var synth = [['TVA collectée',T.collectee,500],['TVA déductible, biens et services',T.ded,500],['TVA déductible, immobilisations',0,500],['TVA nette',T.nette,700],['Acomptes versés',ca12?T.ac:0,500]];
+  return '<div class="head"><div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><h1>Assistant TVA</h1>'+chip('wait','Brouillon')+'</div><p class="sub">Déclaration '+(ca12?'CA12 2026':'CA3')+' · fonds assujettis</p></div>'+
+  '<div style="display:flex;flex-wrap:wrap;gap:8px" class="noprint"><button class="btn" data-act="csv">Exporter en CSV</button><button class="btn" data-act="print">Exporter en PDF</button></div></div>'+
+  '<section class="card" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:20px 24px"><div style="display:flex;flex-wrap:wrap;gap:28px">'+
+  [['Régime',regLabel],['Périodicité',perLabel],['Acomptes',ca12?'Juillet et décembre':'Sans objet'],['Exigibilité des loyers',S.exig==='encaissement'?'À l’encaissement':'À l’échéance']].map(function(x){return '<div><div class="small">'+x[0]+'</div><b>'+x[1]+'</b></div>';}).join('')+
+  '</div><a class="btn noprint" href="#/parametres">Modifier dans Paramètres</a></section>'+
+  '<section class="row"><div class="col" style="flex:2 1 560px">'+
+  '<div class="card"><div class="step"><b>1</b><h2>TVA collectée</h2></div><div class="tablebox"><div class="t head-r" style="'+G1+'"><span>Fonds</span><span>Nature</span><span class="r-right">Base HT</span><span class="r-right">Taux</span><span class="r-right">TVA</span></div>'+
+  collRows.map(function(r){ return '<div class="t r" style="'+G1+'"><b style="font-weight:500">'+r[0]+'</b><span>'+r[1]+'</span><span class="r-right num">'+r[2]+'</span><span class="r-right num">'+r[3]+'</span><span class="r-right num">'+r[4]+'</span></div>'; }).join('')+
+  '<div class="t tot" style="'+G1+'"><span></span><span>Total TVA collectée</span><span class="r-right num">'+fmt(T.base)+'</span><span></span><span class="r-right num">'+fmt(T.collectee)+'</span></div></div></div>'+
+  '<div class="card"><div class="step"><b>2</b><h2>TVA déductible</h2></div><div class="tablebox"><div class="t head-r" style="min-width:640px;'+G2+'"><span>Fournisseur</span><span class="r-right">TTC</span><span class="r-right">HT</span><span class="r-right">TVA</span><span>Type</span><span>Contrôle</span></div>'+
+  T.ch.map(function(c){ return '<div class="t r" style="min-width:640px;'+G2+'"><b style="font-weight:500">'+c.f+'</b><span class="r-right num">'+fmt(c.ttc)+'</span><span class="r-right num">'+fmt(c.ht)+'</span><span class="r-right num">'+fmt(c.tva)+'</span><span class="small" style="font-size:14px">Biens et services</span><span>'+chip(fl[c.f]?'wait':'ok',fl[c.f]?'À vérifier':'OK')+'</span></div>'; }).join('')+
+  '<div class="t tot" style="min-width:640px;'+G2+'"><span>Total TVA déductible</span><span class="r-right num">'+fmt(T.chTtc)+'</span><span class="r-right num">'+fmt(T.chHt)+'</span><span class="r-right num">'+fmt(T.ded)+'</span><span></span><span></span></div></div>'+
+  '<div class="warnbox"><b>3 écarts avec ton Excel 2026</b><span>Lehoux : HT saisi à 198,20 €, alors que 238,20 € TTC donne 198,50 € HT.</span><span>Leroy Merlin : la TVA était calculée à 20 % du TTC (14,28 €) au lieu de 11,90 €.</span><span>Toute la TVA déductible était sur la ligne « immobilisations » ; ici elle va en biens et services.</span><b>Effet net : 2,32 € de TVA déductible en moins, soit 2,32 € de plus à payer.</b></div></div>'+
+  (ca12?'<div class="card"><div class="step"><b>3</b><h2>Acomptes versés</h2></div><div class="grid2"><div class="card" style="padding:16px;gap:4px"><span class="small">Acompte de juillet</span><b class="num" style="font-size:22px">'+eur(ACOMPTES.juillet)+'</b></div><div class="card" style="padding:16px;gap:4px"><span class="small">Acompte de décembre</span><b class="num" style="font-size:22px">'+eur(ACOMPTES.decembre)+'</b></div></div></div>':'')+
+  '</div><div class="card" style="flex:1 1 320px"><h2>Montants à reporter</h2><p class="small">Dans l’ordre de la déclaration</p>'+
+  synth.map(function(s){ return '<div class="between synth" style="font-weight:'+s[2]+'"><span>'+s[0]+'</span><span class="num">'+eur(s[1])+'</span></div>'; }).join('')+
+  '<div style="background:var(--accent);color:#fff;border-radius:10px;padding:18px 20px"><div class="small" style="color:#D6EADF">'+(T.apayer<0?'Crédit de TVA':'TVA à payer')+'</div><div class="num" style="font-size:30px;font-weight:700">'+eur(Math.abs(ca12?T.apayer:T.nette))+'</div></div>'+
+  '<button class="btn dark noprint" data-act="toast" data-v="Maquette : le statut « déclarée » viendra avec la base de données.">Marquer comme déclarée</button>'+
+  '<p class="small">Les montants sont une aide au remplissage : le dépôt se fait sur impots.gouv.fr, ton comptable reste la référence.</p></div></section>';
+}
+
+function viewParametres(){
+  var ca12=S.regime==='ca12';
+  var funds = Object.keys(FUNDS).map(function(k){ var f=FUNDS[k], on=S.fundsOn[k];
+    var note = on ? (f.loyer?('Loyers'+(f.foncier?' et taxe foncière refacturée':'')+' à 20 %'):'À configurer') : 'Loyers hors TVA, pas de TVA collectée';
+    return '<div class="between" style="align-items:center;padding:14px 0;border-top:1px solid var(--line2)"><div style="display:flex;align-items:center;gap:12px"><span class="dot" style="width:12px;height:12px;background:'+f.color+'"></span><div><b>'+f.name+'</b><div class="small">'+note+'</div></div></div>'+
+    '<button type="button" class="switch" role="switch" aria-checked="'+on+'" aria-label="Assujetti à la TVA : '+f.name+'" data-act="fund" data-v="'+k+'"><i></i></button></div>'; }).join('');
+  var enc = S.exig==='encaissement';
+  var exigEff = {t: enc?'TVA sur loyers encaissés':'TVA sur loyers échus', x: enc?'Seuls les loyers marqués « Payé » entrent dans la TVA collectée.':'Les loyers entrent dans la TVA collectée dès leur échéance, payés ou non.'};
+  var effects = (ca12 ? [
+      ['Une déclaration par an','L’assistant reprend le même découpage que ton Excel CA12.'],
+      ['Acomptes','Juillet et décembre, déduits du solde à payer.'] ]
+    : [ [S.period==='mensuel'?'Une déclaration par mois':'Une déclaration par trimestre','L’assistant propose une période à la fois.'],
+        ['Pas d’acomptes','Le solde de chaque période est payé directement.'],
+        ['Crédit de TVA','Un crédit se reporte sur la période suivante.'] ]).concat([[exigEff.t,exigEff.x]]);
+  return '<div class="head"><div><h1>Paramètres</h1><p class="sub">Ces choix adaptent le calcul de l’assistant TVA.</p></div></div>'+
+  '<section class="row"><div class="col" style="flex:2 1 520px">'+
+  '<div class="card"><h2>Régime de TVA</h2><div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">'+
+  '<button type="button" class="choice'+(ca12?' on':'')+'" data-act="regime" data-v="ca12"><b style="font-size:15px">Réel simplifié (CA12)</b><span class="small" style="color:#44514B">Une déclaration par an, avec deux acomptes</span><span class="small" style="font-weight:600;color:var(--accent)">'+(ca12?'Sélectionné':'')+'</span></button>'+
+  '<button type="button" class="choice'+(!ca12?' on':'')+'" data-act="regime" data-v="ca3"><b style="font-size:15px">Réel normal (CA3)</b><span class="small" style="color:#44514B">Une déclaration par mois ou par trimestre</span><span class="small" style="font-weight:600;color:var(--accent)">'+(!ca12?'Sélectionné':'')+'</span></button></div>'+
+  (ca12?'':'<div class="field"><span class="lbl">Périodicité</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn'+(S.period==='mensuel'?' on':'')+'" data-act="period" data-v="mensuel">Mensuelle</button><button type="button" class="btn'+(S.period==='trimestre'?' on':'')+'" data-act="period" data-v="trimestre">Trimestrielle</button></div></div>')+
+  '<div class="field"><span class="lbl">Exigibilité de la TVA sur les loyers</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn'+(enc?' on':'')+'" data-act="exig" data-v="encaissement">À l’encaissement</button><button type="button" class="btn'+(!enc?' on':'')+'" data-act="exig" data-v="echeance">À l’échéance du loyer</button></div></div></div>'+
+  '<div class="card" style="gap:6px"><h2 style="margin-bottom:8px">Fonds assujettis à la TVA</h2>'+funds+'</div>'+
+  '<div class="card"><h2>Taux et catégories</h2><div class="field" style="max-width:320px"><label for="taux">Taux de TVA par défaut</label><select id="taux" class="in"><option>20 %</option><option>10 %</option><option>5,5 %</option></select></div>'+
+  '<div class="field"><span class="lbl">Catégories de charges</span><div style="display:flex;flex-wrap:wrap;gap:8px">'+['Taxe foncière','Assurance','Travaux et entretien','Honoraires','Copropriété','Autre'].map(function(c){return '<span class="pill">'+c+'</span>';}).join('')+'<button type="button" class="btn" style="border-style:dashed;border-radius:999px" data-act="toast" data-v="Maquette : l’ajout de catégories viendra avec la base de données.">+ Ajouter</button></div></div></div></div>'+
+  '<div class="col" style="flex:1 1 320px"><div class="card"><h2>Ce que ça change</h2>'+effects.map(function(e){return '<div class="synth"><b>'+e[0]+'</b><div class="small">'+e[1]+'</div></div>';}).join('')+'</div>'+
+  '<div class="okbox"><b>Acomptes</b><div class="small" style="margin-top:4px;color:#14472F">'+(ca12?'Saisis-les à la main, ou laisse l’appli proposer 55 % (juillet) et 40 % (décembre) de la TVA de l’année précédente.':'Sans objet en réel normal.')+'</div></div>'+
+  '<div class="small">Les choix sont mémorisés dans ce navigateur.</div></div></section>';
+}
+
+/* =====================  ROUTEUR  ===================== */
+function route(){ var h=(location.hash||'#/dashboard').replace(/^#\//,'').split('/'); return h; }
+function render(){
+  var r=route(), html;
+  if(r[0]==='saisie') html=viewSaisie();
+  else if(r[0]==='tva') html=viewTva();
+  else if(r[0]==='parametres') html=viewParametres();
+  else if(r[0]==='fonds') html=viewFonds(r[1]||'tabac');
+  else { r=['dashboard']; html=viewDashboard(); }
+  renderNav(r);
+  document.getElementById('view').innerHTML=html;
+  document.title = 'Suivi des fonds de commerce';
+}
+window.addEventListener('hashchange',function(){ render(); window.scrollTo(0,0); });
+
+/* =====================  ACTIONS  ===================== */
+function toast(t){ var el=document.getElementById('toast'); el.textContent=t; el.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(function(){el.hidden=true;},2600); }
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]'); if(!b) return;
+  var a=b.dataset.act, v=b.dataset.v;
+  if(a==='toast'){ toast(v); return; }
+  if(a==='print'){ window.print(); return; }
+  if(a==='csv'){ exportCsv(); return; }
+  if(a==='tab') S.tab=v;
+  if(a==='mode') S.saisie.mode=v;
+  if(a==='basis') S.saisie.basis=v;
+  if(a==='rate') S.saisie.rate=Number(v);
+  if(a==='regime') S.regime=v;
+  if(a==='period') S.period=v;
+  if(a==='exig') S.exig=v;
+  if(a==='fund') S.fundsOn[v]=!S.fundsOn[v];
+  save(); render();
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='montant'){ S.saisie.amount=e.target.value; save(); document.getElementById('sOut').innerHTML=saisieOut(); document.getElementById('sImpact').innerHTML=saisieImpact(); }
+});
+
+function exportCsv(){
+  var T=totals(), L=[['Rubrique','Montant (EUR)']];
+  L.push(['TVA collectee',T.collectee.toFixed(2)]);
+  T.ch.forEach(function(c){ L.push(['TVA deductible - '+c.f,c.tva.toFixed(2)]); });
+  L.push(['Total TVA deductible',T.ded.toFixed(2)],['TVA nette',T.nette.toFixed(2)],['Acompte juillet',ACOMPTES.juillet.toFixed(2)],['Acompte decembre',ACOMPTES.decembre.toFixed(2)],['TVA a payer',T.apayer.toFixed(2)]);
+  var csv='﻿'+L.map(function(r){return r.join(';');}).join('\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='tva-ca12-2026.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+
+render();
+</script>
+</body>
+</html>
